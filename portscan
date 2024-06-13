@@ -1,0 +1,30 @@
+        private String handlePortScan(String message) {
+            String[] parts = message.split(" ");
+            if (parts.length != 5) {
+                return "Yêu cầu không hợp lệ. Vui lòng nhập lại theo định dạng: scanport <IP> <port_start> <port_end>";
+            }
+
+            String ipAddress = parts[2];
+            int startPort, endPort;
+            try {
+                startPort = Integer.parseInt(parts[3]);
+                endPort = Integer.parseInt(parts[4]);
+            } catch (NumberFormatException e) {
+                return "Port không hợp lệ. Vui lòng nhập lại.";
+            }
+
+            StringBuilder result = new StringBuilder();
+            result.append("Các port đang mở từ port ").append(startPort).append(" đến port ").append(endPort).append(":\n");
+            for (int port = startPort; port <= endPort; port++) { //kiem tra port mo bang cach netstat -aon
+                try {
+                    Socket socket = new Socket();
+                    socket.connect(new InetSocketAddress(ipAddress, port), 1000);
+                    socket.close();
+                    result.append(port).append("\n");
+                } catch (IOException e) {
+                    // Port đóng, không thêm vào kết quả
+                }
+            }
+
+            return result.toString();
+        }
